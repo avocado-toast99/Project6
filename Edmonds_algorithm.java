@@ -2,9 +2,9 @@
 
 Group Members:
 
-Hana'a Al-Lohibi            1675753
-Bashair Atif Abdulrazak     1505459  
-Maha Osama  Assagran        1605216
+Hana'a Al-Lohibi            
+Bashair Atif Abdulrazak       
+Maha Osama          
 
 Algorithms and Data Structures
 Section CH 
@@ -26,7 +26,18 @@ public class Edmonds_algorithm {
      */
     public static void main(String[] args) {
 
-        int[][] Graph = {
+        int[][] SlidesGraph = {
+            //  1  2  3  4  5  6  
+            {0, 2, 0, 3, 0, 0},
+            {0, 0, 5, 0, 3, 0},
+            {0, 0, 0, 0, 0, 2},
+            {0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0, 4},
+            {0, 0, 0, 0, 0, 0}
+
+        };
+
+        int[][] GraphEX2 = {
             {0, 3, 0, 3, 0, 0, 0},
             {0, 0, 4, 0, 0, 0, 0},
             {3, 0, 0, 1, 2, 0, 0},
@@ -36,41 +47,52 @@ public class Edmonds_algorithm {
             {0, 0, 0, 0, 0, 0, 0}
 
         };
+        System.out.println("~~~Edmonds-Karp Algorithm~~~" + "\n-----------------------------");
+        System.out.println("Now running on the sample graph in the book... ");
+        System.out.println("\n\n");
+        int[][] PathsEX1 = EdmondsKarp(SlidesGraph);
+
+      // int[][] PathsEX2 = EdmondsKarp(GraphEX2);
+    } // main 
+
+    public static int[][] EdmondsKarp(int[][] Graph) {
+        /*
+        
+        Description:
+        this method
+        
+        Parameters:
+        
+        
+        Output:
+        
+        
+         */
 
         int src = 0;
-        int sink = 6;
-//        public static int num_paths;
+        int sink = Graph.length - 1;
+
         ArrayList AugPaths = new ArrayList();
 
-//        AugPaths.add(src, src);
-//        for (int i = 0; i < AugPaths.size(); i++) {
-//            int sourceValue = Graph[src][src];
-//            AugPaths.set(i, sourceValue);
-//            
-//        }
         int[][] result = MaxFlow(Graph, src, sink, AugPaths);
-//
-//        System.out.println("Paths : ");
 
         int max_flow = result[0][0];
         int number_of_paths = result[0][1];
 
-        System.out.println("~~~Edmonds-Karp Algorithm~~~" + "\n-----------------------------");
+        int[] nodes = new int[Graph.length];
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i] = i + 1;
+
+        }
 
         System.out.println("Number of Paths: " + number_of_paths);
         System.out.println("Paths: ");
 
-        //    for (int i = 0; i < number_of_paths; i++) {
-        System.out.println("From " + src + " To " + sink + "\n---------------");
+        System.out.println("From " + nodes[src] + " To " + nodes[sink] + "\n---------------");
 
-//        for (int j = 0; j < AugPaths.size(); j++) {
-//
-//            System.out.println(AugPaths.get(j));
-//            // AugPaths.add(j, src);
-//        }
-AugPaths.add(src,src);
+        AugPaths.add(src, src);
         for (int i = 0; i < AugPaths.size(); i++) {
-            
+
             int nextINDX = i + 1;
             if (nextINDX < AugPaths.size()) {
                 int thisValue = (int) AugPaths.get(i);
@@ -82,38 +104,73 @@ AugPaths.add(src,src);
             }
 
         }
+        int[][] Paths = new int[Graph.length][Graph[0].length];
+        for (int i = 0; i < Paths.length; i++) {
+            for (int j = 0; j < Paths[i].length; j++) {
+                Paths[i][j] = 100;
 
-        for (int j = 0; j < AugPaths.size(); j++) {
-
-            System.out.print(AugPaths.get(j));
-            if ((int) AugPaths.get(j) == sink) {
-                System.out.println("\n");
-            } else {
-                System.out.print(" -> ");
             }
 
         }
 
+        int stoppedAt = 0;
+
+        for (int i = Paths.length - 1; i >= 0; i--) {
+            for (int j = 0; j < Paths[i].length; j++) {
+                for (int l = stoppedAt; l < AugPaths.size(); l++) {
+                    int indx = (int) AugPaths.get(l);
+                    Paths[i][j] = nodes[indx];
+
+                    if (indx == sink) {
+                        Paths[i][j] = nodes[indx];
+                        stoppedAt = l + 1;
+                        break;
+                    } else {
+                        stoppedAt = l + 1;
+
+                        break;
+                    }
+                }
+
+            }
+
+        }
+        for (int i = 0; i < Paths.length; i++) {
+            for (int j = 0; j < Paths[i].length; j++) {
+
+                if (Paths[i][j] != 100) {
+
+                    System.out.print(Paths[i][j]);
+                    if (j + 1 == Paths[i].length) {
+                        System.out.println();
+
+                        break;
+
+                    } else {
+                        System.out.print(" -> ");
+
+                    }
+
+                }
+            }
+
+            System.out.println("");
+
+        }
+
         System.out.println("The Final Maximum Flow: " + max_flow);
-        // }
-//        for (int i = 0; i < AugPaths.size(); i++) {
-//            
-//            System.out.print(AugPaths.get(i));
-//         
-//            if ((int) AugPaths.get(i) == sink) {
-//                System.out.println("");
-//            } else {
-//                System.out.print("->");
-//            }
-//            
-//        }
 
         System.out.println("");
-        //   System.out.println("Max Flow " + max);
-
-    } // main 
+        return Paths;
+    }
 
     public static boolean isThereAugPath(int capacity[][], int src, int sink, int parent_map[]) {
+
+        int[] nodes = new int[6];
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i] = i + 1;
+
+        }
 
         boolean label[] = new boolean[capacity.length];
 
@@ -174,24 +231,19 @@ AugPaths.add(src,src);
 
             Queue.dequeue();
         }
-        //  AugPaths.add(src);
 
-        //Collections.reverse(AugPaths);
-        // AugPaths.add(AugPaths);
-//         for (int i = 0; i < AugPaths.size(); i++) {
-//            //System.out.print("Path " + i + ": ");
-//           
-//            System.out.print(AugPaths.get(i)+ " ");
-//           // System.out.println("");
-//        }
-//        if (visited[sink] !=src)
-//        System.out.println("");
         // we reached the sink so there is augmented path 
         return (label[sink] == true);
     }
 
     // Returns tne maximum flow from s to t in the given graph 
     public static int[][] MaxFlow(int capacity[][], int src, int sink, ArrayList<Integer> AugPaths) {
+
+        int[] nodes = new int[6];
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i] = i + 1;
+
+        }
 
         int u, v;
         int number_paths = 0;
